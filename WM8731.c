@@ -14,6 +14,8 @@
 #define ANALOGUE_AUDIO 0x04
 #define LEFT_HP_OUT 0x02
 #define RIGHT_HP_OUT 0x03
+#define INTERFACE_FORMAT     0x07
+#define SAMPLING_CONTROL     0x08
 
 void init_codec()
 {
