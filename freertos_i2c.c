@@ -25,6 +25,7 @@ typedef struct
 } freertos_i2c_handle_t;
 
 static freertos_i2c_handle_t i2c_handle = {0};
+uint8_t g_ack_received = 0;
 
 freertos_i2c_flag_t init_i2c0_with_default_config(void)
 {
@@ -36,8 +37,20 @@ freertos_i2c_flag_t init_i2c0_with_default_config(void)
 
     /* Initialize pins for I2C0 */
     CLOCK_EnableClock(kCLOCK_PortE);
-    PORT_SetPinMux(PORTE, 24, kPORT_MuxAlt5);
-    PORT_SetPinMux(PORTE, 25, kPORT_MuxAlt5);
+//    PORT_SetPinMux(PORTE, 24, kPORT_MuxAlt5);
+//    PORT_SetPinMux(PORTE, 25, kPORT_MuxAlt5);
+
+    port_pin_config_t config;
+    config.slewRate = 1;
+    config.pullSelect = 2;
+    config.mux = kPORT_MuxAlt5;
+
+    PORT_SetPinConfig(PORTE, 24, &config);
+    PORT_SetPinConfig(PORTE, 25, &config);
+
+
+    // pull up, slew rate, y deshabilitar params y desconectar codec
+
 
     /* Use default config values for i2c master and enable interruption */
     i2c_master_config_t mstr_cfg;
@@ -62,11 +75,13 @@ void fsl_i2c_callback(I2C_Type *base, i2c_master_handle_t *handle,
     {
         xSemaphoreGiveFromISR(i2c_handle.transfer_sem,
                 &xHigherPriorityTaskWoken);
+        g_ack_received = 1;
     }
     else
     {
         xSemaphoreGiveFromISR(i2c_handle.transfer_sem,
                 &xHigherPriorityTaskWoken);
+        g_ack_received = 0;
     }
 
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken);
@@ -91,7 +106,15 @@ freertos_i2c_flag_t i2c_multiple_write(uint8_t slave_addr, uint8_t * write_data,
         xSemaphoreTake(i2c_handle.transfer_sem, portMAX_DELAY);
         xSemaphoreGive(i2c_handle.mutex);
 
-        return freertos_i2c_success;
+        if (g_ack_received)
+        {
+        	return freertos_i2c_success;
+        }
+        else
+        {
+        	return freertos_i2c_fail;
+        }
+
     }
     else
     {

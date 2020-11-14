@@ -12,6 +12,6 @@
 #include "freertos_i2c.h"
 #include "fsl_debug_console.h"
 
-void init_codec();
+uint8_t init_codec();
 
 #endif /* WM8731_H_ */

@@ -52,7 +52,16 @@ void init_modules(void * params)
     init_i2c0_with_default_config();
     vTaskDelay(pdMS_TO_TICKS(100));
 
-	init_codec();
+	uint8_t init_success = init_codec();
+
+    if (!init_success)
+    {
+        PRINTF("Init error");
+    }
+    else
+    {
+    	PRINTF("Success");
+    }
 
     xSemaphoreGive(modules_initialized);
     vTaskSuspend(NULL);
