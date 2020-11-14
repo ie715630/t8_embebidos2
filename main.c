@@ -23,6 +23,8 @@ SemaphoreHandle_t modules_initialized;
 
 void init_modules(void * params);
 
+void audio_codec(void *params);
+
 /*
  * @brief   Application entry point.
  */
@@ -70,4 +72,15 @@ void init_modules(void * params)
     {
         // Nothing
     }
+}
+
+void audio_codec(void *params)
+{
+	xSemaphoreTake(modules_initialized, portMAX_DELAY);
+	for(;;)
+	{
+		//Audio functions
+		vTaskDelay(pdMS_TO_TICKS(300));
+	}
+
 }
